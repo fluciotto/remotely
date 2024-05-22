@@ -1,7 +1,6 @@
 "use client";
 
 import { Button, Stack, TextField } from "@mui/material";
-import { connect } from "http2";
 import { useState } from "react";
 import { createClient } from "node-rdpjs-2";
 
@@ -13,7 +12,7 @@ export default function () {
   const [domain, setDomain] = useState("domain");
 
   const connect = () => {
-    var client = createClient({
+    const client = createClient({
       domain: domain,
       userName: username,
       password: password,
@@ -26,9 +25,9 @@ export default function () {
     })
       .on("connect", function () {})
       .on("close", function () {})
-      .on("bitmap", function (bitmap) {})
-      .on("error", function (err) {})
-      .connect("XXX.XXX.XXX.XXX", 3389);
+      .on("bitmap", function (bitmap: any) {})
+      .on("error", function (err: any) {})
+      .connect(host, port);
   };
 
   return (

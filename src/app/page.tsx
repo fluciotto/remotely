@@ -2,7 +2,7 @@
 
 import { Button, Stack, TextField } from "@mui/material";
 import { useState } from "react";
-import { createClient } from "node-rdpjs-2";
+// import { createClient } from "node-rdpjs-2";
 
 export default function () {
   const [host, setHost] = useState("192.168.1.2");
@@ -11,23 +11,25 @@ export default function () {
   const [password, setPassword] = useState("password");
   const [domain, setDomain] = useState("domain");
 
-  const connect = () => {
-    const client = createClient({
-      domain: domain,
-      userName: username,
-      password: password,
-      enablePerf: true,
-      autoLogin: true,
-      decompress: false,
-      screen: { width: 800, height: 600 },
-      locale: "en",
-      logLevel: "INFO",
-    })
-      .on("connect", function () {})
-      .on("close", function () {})
-      .on("bitmap", function (bitmap: any) {})
-      .on("error", function (err: any) {})
-      .connect(host, port);
+  const connect = async () => {
+    await fetch("/api/");
+
+    // const client = createClient({
+    //   domain: domain,
+    //   userName: username,
+    //   password: password,
+    //   enablePerf: true,
+    //   autoLogin: true,
+    //   decompress: false,
+    //   screen: { width: 800, height: 600 },
+    //   locale: "en",
+    //   logLevel: "INFO",
+    // })
+    //   .on("connect", function () {})
+    //   .on("close", function () {})
+    //   .on("bitmap", function (bitmap: any) {})
+    //   .on("error", function (err: any) {})
+    //   .connect(host, port);
   };
 
   return (

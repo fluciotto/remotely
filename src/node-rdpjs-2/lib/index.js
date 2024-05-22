@@ -17,14 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var TPKT = require('./tpkt');
-var x224 = require('./x224');
-var t125 = require('./t125');
-var rdp = require('./rdp');
-
+var protocol = require('./protocol');
 module.exports = {
-	TPKT : TPKT,
-	x224 : x224,
-	t125 : t125,
-	rdp : rdp
+	createClient : protocol.rdp.createClient,
+	createServer : protocol.rdp.createServer
 };

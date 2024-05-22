@@ -18,7 +18,7 @@
  */
 
 var inherits = require('util').inherits;
-// var fs = require('fs');
+var fs = require('fs');
 var type = require('./type');
 var log = require('./log');
 var tls = require('tls');
@@ -157,10 +157,10 @@ BufferLayer.prototype.listenTLS = function(keyFilePath, crtFilePath, callback) {
 
 	this.secureSocket = tls.connect({
 		socket: this.socket,
-		// secureContext: tls.createSecureContext({
-		// 	key: fs.readFileSync(keyFilePath),
-		// 	cert: fs.readFileSync(crtFilePath),
-		// }),
+		secureContext: tls.createSecureContext({
+			key: fs.readFileSync(keyFilePath),
+			cert: fs.readFileSync(crtFilePath),
+		}),
 		isServer: true,
 		requestCert: false,
 		rejectUnauthorized: false

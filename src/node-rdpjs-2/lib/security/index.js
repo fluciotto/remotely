@@ -17,16 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var layer = require('./layer');
-var type = require('./type');
-// var log = require('./log');
-var error = require('./error');
-var rle = require('./rle');
+var x509 = require('./x509');
+var rsa = require('./rsa');
 
 module.exports = {
-	layer : layer,
-	type : type,
-	// log : log,
-	error : error,
-	rle : rle
+	x509 : x509,
+	rsa : rsa
 };

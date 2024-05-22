@@ -1,13 +1,36 @@
 "use client";
 
 import { Button, Stack, TextField } from "@mui/material";
+import { connect } from "http2";
 import { useState } from "react";
+import { createClient } from "node-rdpjs-2";
 
 export default function () {
   const [host, setHost] = useState("192.168.1.2");
   const [port, setPort] = useState(3389);
   const [username, setUsername] = useState("usename");
   const [password, setPassword] = useState("password");
+  const [domain, setDomain] = useState("domain");
+
+  const connect = () => {
+    var client = createClient({
+      domain: domain,
+      userName: username,
+      password: password,
+      enablePerf: true,
+      autoLogin: true,
+      decompress: false,
+      screen: { width: 800, height: 600 },
+      locale: "en",
+      logLevel: "INFO",
+    })
+      .on("connect", function () {})
+      .on("close", function () {})
+      .on("bitmap", function (bitmap) {})
+      .on("error", function (err) {})
+      .connect("XXX.XXX.XXX.XXX", 3389);
+  };
+
   return (
     <Stack gap={2}>
       <Stack direction="row" gap={2}>
@@ -34,7 +57,12 @@ export default function () {
         value={password}
         onChange={(event) => setPassword(event.target.value)}
       />
-      <Button>Connect</Button>
+      <TextField
+        label="Domain"
+        value={domain}
+        onChange={(event) => setDomain(event.target.value)}
+      />
+      <Button onClick={() => connect()}>Connect</Button>
     </Stack>
   );
 }

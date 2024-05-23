@@ -30,7 +30,7 @@
     "eslint-config-next": "13.5.1",
     "patch-package": "^8.0.0",
     "postinstall-postinstall": "^2.1.0",
-    "typescript": "5.2.2"
+    "typescript": "^5.4.5"
   },
   "ZZbrowser": {
     "fs": false,

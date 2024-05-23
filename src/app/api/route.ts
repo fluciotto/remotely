@@ -1,13 +1,16 @@
 import { NextRequest } from "next/server";
-// import { createClient } from "../../node-rdpjs-2";
 import { createClient } from "../../node-rdpjs";
 
-export async function GET(request: NextRequest) {
-  const host = "192.168.1.2";
-  const port = 3389;
-  const domain = "domain";
-  const username = "username";
-  const password = "password";
+export async function GET(req: NextRequest) {
+  const searchParams = req.nextUrl.searchParams
+  const [host, port, username, password, domain] = [
+    searchParams.get("host"),
+    searchParams.get("port"),
+    searchParams.get("username"),
+    searchParams.get("password"),
+    searchParams.get("domain"),
+  ]
+
   const client = createClient({
     domain: domain,
     userName: username,

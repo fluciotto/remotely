@@ -2,34 +2,22 @@
 
 import { Button, Stack, TextField } from "@mui/material";
 import { useState } from "react";
-// import { createClient } from "node-rdpjs-2";
 
 export default function () {
-  const [host, setHost] = useState("192.168.1.2");
+  const [host, setHost] = useState("192.168.122.227");
   const [port, setPort] = useState(3389);
-  const [username, setUsername] = useState("usename");
-  const [password, setPassword] = useState("password");
-  const [domain, setDomain] = useState("domain");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [domain, setDomain] = useState("");
 
   const connect = async () => {
-    await fetch("/api/");
-
-    // const client = createClient({
-    //   domain: domain,
-    //   userName: username,
-    //   password: password,
-    //   enablePerf: true,
-    //   autoLogin: true,
-    //   decompress: false,
-    //   screen: { width: 800, height: 600 },
-    //   locale: "en",
-    //   logLevel: "INFO",
-    // })
-    //   .on("connect", function () {})
-    //   .on("close", function () {})
-    //   .on("bitmap", function (bitmap: any) {})
-    //   .on("error", function (err: any) {})
-    //   .connect(host, port);
+    const url = new URL("/api/", document.location.origin)
+    url.searchParams.append("host", host)
+    url.searchParams.append("port", port.toString())
+    url.searchParams.append("username", username)
+    url.searchParams.append("password", password)
+    url.searchParams.append("domain", domain)
+    await fetch(url);
   };
 
   return (

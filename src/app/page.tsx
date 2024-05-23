@@ -35,17 +35,19 @@ export default function () {
           onChange={(event) => setPort(parseInt(event.target.value))}
         />
       </Stack>
-      <TextField
-        label="Username"
-        value={username}
-        onChange={(event) => setUsername(event.target.value)}
-      />
-      <TextField
-        type="password"
-        label="Password"
-        value={password}
-        onChange={(event) => setPassword(event.target.value)}
-      />
+      <Stack direction="row" gap={2}>
+        <TextField
+          label="Username"
+          value={username}
+          onChange={(event) => setUsername(event.target.value)}
+        />
+        <TextField
+          type="password"
+          label="Password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+        />
+      </Stack>
       <TextField
         label="Domain"
         value={domain}

@@ -15,7 +15,6 @@
     "autoprefixer": "10.4.15",
     "browser-bunyan": "^1.8.0",
     "next": "13.5.1",
-    "node-rdpjs": "^0.3.0",
     "pino": "^9.1.0",
     "postcss": "8.4.30",
     "react": "18.2.0",
@@ -38,5 +37,8 @@
     "os": false,
     "path": false,
     "tls": false
+  },
+  "resolutions": {
+    "string-width": "4.2.3"
   }
 }

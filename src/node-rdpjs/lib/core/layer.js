@@ -124,7 +124,8 @@ BufferLayer.prototype.expect = function(expectedSize) {
 BufferLayer.prototype.startTLS = function(callback) {
 	var options = {
 			socket : this.socket,
-			pair : tls.createSecurePair(crypto.createCredentials(), false, false, false)
+			// pair : tls.createSecurePair(crypto.createCredentials(), false, false, false)
+			pair : tls.createSecurePair(tls.createSecureContext(), false, false, false)
 	};
 	var self = this;
 	this.securePair = starttls(options, function(err) {
@@ -154,7 +155,11 @@ BufferLayer.prototype.startTLS = function(callback) {
 BufferLayer.prototype.listenTLS = function(keyFilePath, crtFilePath, callback) {
 	var options = {
 			socket : this.socket,
-			pair : tls.createSecurePair(crypto.createCredentials({
+			// pair : tls.createSecurePair(crypto.createCredentials({
+			// 	key: fs.readFileSync(keyFilePath),
+			// 	cert: fs.readFileSync(crtFilePath),
+			// }), true, false, false)
+			pair : tls.createSecurePair(tls.createSecureContext({
 				key: fs.readFileSync(keyFilePath),
 				cert: fs.readFileSync(crtFilePath),
 			}), true, false, false)

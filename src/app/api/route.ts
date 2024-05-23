@@ -1,8 +1,8 @@
 import { NextRequest } from "next/server";
-import { createClient } from "../../node-rdpjs-2/lib";
+import { createClient } from "../../node-rdpjs-2";
 
 export async function GET(request: NextRequest) {
-  const host = "host";
+  const host = "192.168.1.2";
   const port = 3389;
   const domain = "domain";
   const username = "username";
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     decompress: false,
     screen: { width: 800, height: 600 },
     locale: "en",
-    logLevel: "INFO",
+    logLevel: "DEBUG",
   })
     .on("connect", function () {
       console.log("CONNECTED");
@@ -29,6 +29,8 @@ export async function GET(request: NextRequest) {
     })
     .on("error", function (err: any) {
       console.log("error", err);
-    })
-    .connect(host, port);
+    });
+  // console.log(client);
+  client.connect(host, port);
+  return new Response(undefined, { status: 200 });
 }

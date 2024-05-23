@@ -55,10 +55,10 @@ logStreams.push(
 var logger = Logger()
 
 
-function log(level, message) {
-	if (Levels[level] < module.exports.level) return;
-	console.log("[node-rdpjs] " + level + ":\t" + message);
-}
+// function log(level, message) {
+// 	if (Levels[level] < module.exports.level) return;
+// 	console.log("[node-rdpjs] " + level + ":\t" + message);
+// }
 
 /**
  * Module exports
@@ -66,8 +66,12 @@ function log(level, message) {
 module.exports = {
 	level: Levels.INFO,
 	Levels: Levels,
-	debug: function (message) { logger.debug(message); },
-	info: function (message) { logger.info(message); },
-	warn: function (message) { logger.warn(message); },
-	error: function (message) { logger.error(message); }
+	// debug: function (message) { logger.debug(message); },
+	// info: function (message) { logger.info(message); },
+	// warn: function (message) { logger.warn(message); },
+	// error: function (message) { logger.error(message); }
+	debug: function (message) { console.log(message); },
+	info: function (message) { console.log(message); },
+	warn: function (message) { console.log(message); },
+	error: function (message) { console.log(message); }
 };

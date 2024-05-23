@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
-import { createClient } from "../../node-rdpjs-2";
+// import { createClient } from "../../node-rdpjs-2";
+import { createClient } from "../../node-rdpjs";
 
 export async function GET(request: NextRequest) {
   const host = "192.168.1.2";

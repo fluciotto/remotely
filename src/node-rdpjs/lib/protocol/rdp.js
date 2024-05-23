@@ -102,12 +102,6 @@ function RdpClient(config) {
 	if (config.password) {
 		this.sec.infos.obj.password.value = new Buffer(config.password + '\x00', 'ucs2');
 	}
-	if(config.workingDir) {
-		this.sec.infos.obj.workingDir.value = new Buffer(config.workingDir + '\x00', 'ucs2');
-	}
-	if(config.alternateShell) {
-		this.sec.infos.obj.alternateShell.value = new Buffer(config.alternateShell + '\x00', 'ucs2');
-	}
 	
 	if (config.enablePerf) {
 		this.sec.infos.obj.extendedInfo.obj.performanceFlags.value = 
@@ -127,17 +121,17 @@ function RdpClient(config) {
 		this.mcs.clientCoreData.obj.desktopHeight.value = config.screen.height;
 	}
 	
-	log.debug('screen ' + this.mcs.clientCoreData.obj.desktopWidth.value + 'x' + this.mcs.clientCoreData.obj.desktopHeight.value);
+	log.info('screen ' + this.mcs.clientCoreData.obj.desktopWidth.value + 'x' + this.mcs.clientCoreData.obj.desktopHeight.value);
 	
 	// config keyboard layout
 	switch (config.locale) {
 	case 'fr':
-		log.debug('french keyboard layout');
+		log.info('french keyboard layout');
 		this.mcs.clientCoreData.obj.kbdLayout.value = t125.gcc.KeyboardLayout.FRENCH;
 		break;
 	case 'en':
 	default:
-		log.debug('english keyboard layout');
+		log.info('english keyboard layout');
 		this.mcs.clientCoreData.obj.kbdLayout.value = t125.gcc.KeyboardLayout.US;
 	}
 		
@@ -175,7 +169,7 @@ function RdpClient(config) {
 			});
 		}
 	}).on('error', function (err) {
-		log.warn(err.code + '(' + err.message + ')\n' + err.stack);
+		log.error(err.code + '(' + err.message + ')\n' + err.stack);
 		if (err instanceof error.FatalError) {
 			throw err;
 		}
@@ -193,7 +187,7 @@ inherits(RdpClient, events.EventEmitter);
  * @param port {integer} destination port
  */
 RdpClient.prototype.connect = function (host, port) {
-	log.debug('connect to ' + host + ':' + port);
+	log.info('connect to ' + host + ':' + port);
 	var self = this;
 	this.bufferLayer.socket.connect(port, host, function () {
 		// in client mode connection start from x224 layer

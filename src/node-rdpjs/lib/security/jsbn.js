@@ -1,6 +1,6 @@
 /*
  * Basic JavaScript BN library - subset useful for RSA encryption.
- *
+ * 
  * Copyright (c) 2003-2005  Tom Wu
  * All Rights Reserved.
  *
@@ -15,9 +15,9 @@
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY
- * WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+ * THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
+ * EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
+ * WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
  *
  * IN NO EVENT SHALL TOM WU BE LIABLE FOR ANY SPECIAL, INCIDENTAL,
  * INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND, OR ANY DAMAGES WHATSOEVER
@@ -37,7 +37,7 @@
  */
 
 var crypt = require('crypto');
-var isNumber = require('lodash.isnumber');
+var _ = require('lodash');
 
 // Bits per digit
 var dbits;
@@ -112,7 +112,7 @@ function am3(i, x, w, j, c, n) {
     return c;
 }
 
-// We need to select the fastest one that works in this environment.
+// We need to select the fastest one that works in this environment. 
 //if (j_lm && (navigator.appName == "Microsoft Internet Explorer")) {
 //	BigInteger.prototype.am = am2;
 //	dbits = 30;
@@ -832,7 +832,7 @@ function bnToBuffer(trimOrSize) {
     var res = new Buffer(this.toByteArray());
     if (trimOrSize === true && res[0] === 0) {
         res = res.slice(1);
-    } else if (isNumber(trimOrSize)) {
+    } else if (_.isNumber(trimOrSize)) {
         if (res.length > trimOrSize) {
             for (var i = 0; i < res.length - trimOrSize; i++) {
                 if (res[i] !== 0) {

@@ -227,7 +227,7 @@ Component.prototype.writeValue = function(s) {
 			this.obj[i].write(s);
 		}
 		catch(e) {
-			log.info('during write of field ' + i);
+			log.error('during write of field ' + i);
 			throw e;
 		}
 	}
@@ -252,7 +252,7 @@ Component.prototype.readValue = function(s) {
 			this.obj[i].read(readStream);
 		}
 		catch(e) {
-			log.info('during read of field ' + i);
+			log.error('during read of field ' + i);
 			throw e;
 		}
 	}

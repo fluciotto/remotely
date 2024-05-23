@@ -21,6 +21,7 @@ var inherits = require('util').inherits;
 var fs = require('fs');
 var type = require('./type');
 var log = require('./log');
+var starttls = require('starttls');
 var tls = require('tls');
 var crypto = require('crypto');
 var events = require('events');
@@ -31,9 +32,9 @@ var events = require('events');
  */
 function BufferLayer(socket) {
 	//for ssl connection
-	this.secureSocket = null;
+	this.securePair = null;
 	this.socket = socket;
-
+	
 	var self = this;
 	// bind event
 	this.socket.on('data', function(data) {
@@ -49,7 +50,7 @@ function BufferLayer(socket) {
 	}).on('error', function (err) {
 		self.emit('error', err);
 	});
-
+	
 	//buffer data
 	this.buffers = [];
 	this.bufferLength = 0;
@@ -66,17 +67,17 @@ inherits(BufferLayer, events.EventEmitter);
 BufferLayer.prototype.recv = function(data) {
 	this.buffers[this.buffers.length] = data;
 	this.bufferLength += data.length;
-
+	
 	while(this.bufferLength >= this.expectedSize) {
 		//linear buffer
 		var expectedData = new type.Stream(this.expectedSize);
-
+		
 		//create expected data
 		while(expectedData.availableLength() > 0) {
-
+			
 			var rest = expectedData.availableLength();
 			var buffer = this.buffers.shift();
-
+			
 			if(buffer.length > expectedData.availableLength()) {
 				this.buffers.unshift(buffer.slice(rest));
 				new type.BinaryString(buffer, { readLength : new type.CallableValue(expectedData.availableLength()) }).write(expectedData);
@@ -85,7 +86,7 @@ BufferLayer.prototype.recv = function(data) {
 				new type.BinaryString(buffer).write(expectedData);
 			}
 		}
-
+		
 		this.bufferLength -= this.expectedSize;
 		expectedData.offset = 0;
 		this.emit('data', expectedData);
@@ -99,8 +100,8 @@ BufferLayer.prototype.recv = function(data) {
 BufferLayer.prototype.send = function(data) {
 	var s = new type.Stream(data.size());
 	data.write(s);
-	if(this.secureSocket) {
-		this.secureSocket.write(s.buffer);
+	if(this.securePair) {
+		this.securePair.cleartext.write(s.buffer);
 	}
 	else {
 		this.socket.write(s.buffer);
@@ -117,23 +118,21 @@ BufferLayer.prototype.expect = function(expectedSize) {
 
 /**
  * Convert connection to TLS connection
+ * Use nodejs starttls module
  * @param callback {func} when connection is done
  */
 BufferLayer.prototype.startTLS = function(callback) {
+	var options = {
+			socket : this.socket,
+			pair : tls.createSecurePair(crypto.createCredentials(), false, false, false)
+	};
 	var self = this;
-
-	this.secureSocket = tls.connect({
-		socket: this.socket,
-		secureContext: tls.createSecureContext(),
-		isServer: false,
-		requestCert: false,
-		rejectUnauthorized: false
-	}, (err) => {
+	this.securePair = starttls(options, function(err) {
 		log.warn(err);
-		callback(err);
-	});
-
-	this.secureSocket.on('data', function(data) {
+		callback();
+	})
+	
+	this.securePair.cleartext.on('data', function(data) {
 		try {
 			self.recv(data);
 		}
@@ -150,26 +149,24 @@ BufferLayer.prototype.startTLS = function(callback) {
  * Convert connection to TLS server
  * @param keyFilePath	{string} key file path
  * @param crtFilePath	{string} certificat file path
- * @param callback	{function}
+ * @param callback	{function} 
  */
 BufferLayer.prototype.listenTLS = function(keyFilePath, crtFilePath, callback) {
+	var options = {
+			socket : this.socket,
+			pair : tls.createSecurePair(crypto.createCredentials({
+				key: fs.readFileSync(keyFilePath),
+				cert: fs.readFileSync(crtFilePath),
+			}), true, false, false)
+	};
 	var self = this;
-
-	this.secureSocket = tls.connect({
-		socket: this.socket,
-		secureContext: tls.createSecureContext({
-			key: fs.readFileSync(keyFilePath),
-			cert: fs.readFileSync(crtFilePath),
-		}),
-		isServer: true,
-		requestCert: false,
-		rejectUnauthorized: false
-	}, (err) => {
+	this.securePair = starttls(options, function(err) {
 		log.warn(err);
-		callback(err);
+		self.cleartext = this.cleartext;
+		callback();
 	});
-
-	this.secureSocket.on('data', function(data) {
+	
+	this.securePair.cleartext.on('data', function(data) {
 		try {
 			self.recv(data);
 		}

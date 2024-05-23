@@ -1,8 +1,6 @@
 node-rdpjs
 ========
 
-Identical to [node-rdpjs](github.com/citronneur/node-rdpjs) but just updated for latest versions of Node.
-
 Remote Desktop Protocol for Node.js
 
 node-rdpjs is a pure implementation of the Microsoft RDP (Remote Desktop Protocol) protocol (client and server side). node-rdpjs support only SSL security layer.

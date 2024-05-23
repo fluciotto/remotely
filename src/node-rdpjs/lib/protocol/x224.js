@@ -218,8 +218,7 @@ Client.prototype.recvConnectionConfirm = function(s) {
 	var message = serverConnectionConfirm().read(s);
 
 	if(message.obj.protocolNeg.obj.type.value == NegotiationType.TYPE_RDP_NEG_FAILURE) {
-		throw new error.ProtocolError('NODE_RDP_PROTOCOL_X224_NEG_FAILURE',
-			'Failure code:' + message.obj.protocolNeg.obj.result.value + " (see https://msdn.microsoft.com/en-us/library/cc240507.aspx)");
+		throw new error.ProtocolError('NODE_RDP_PROTOCOL_X224_NEG_FAILURE');
 	}
 
 	if(message.obj.protocolNeg.obj.type.value == NegotiationType.TYPE_RDP_NEG_RSP) {
@@ -231,7 +230,7 @@ Client.prototype.recvConnectionConfirm = function(s) {
 	}
 
 	if(this.selectedProtocol == Protocols.PROTOCOL_RDP) {
-		log.debug("RDP standard security selected");
+		log.warn("RDP standard security selected");
 		return;
 	}
 	
@@ -242,7 +241,7 @@ Client.prototype.recvConnectionConfirm = function(s) {
 	});
 
 	if(this.selectedProtocol == Protocols.PROTOCOL_SSL) {
-		log.debug("SSL standard security selected");
+		log.info("SSL standard security selected");
 		this.transport.transport.startTLS(function() {
 			self.emit('connect', self.selectedProtocol);
 		});
@@ -308,7 +307,7 @@ Server.prototype.sendConnectionConfirm = function () {
 	});
 	
 	this.transport.transport.listenTLS(this.keyFilePath, this.crtFilePath, function() {
-		log.debug('start SSL connection');
+		log.info('start SSL connection');
 		self.emit('connect', self.requestedProtocol);
 	});
 };

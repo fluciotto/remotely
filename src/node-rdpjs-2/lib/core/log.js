@@ -18,7 +18,7 @@
  */
 
 // var Logger = require('bunyan');
-var logger = require('pino');
+var Logger = require('pino');
 
 var Levels = {
 	'DEBUG': 1,
@@ -52,6 +52,7 @@ logStreams.push(
 // 	name: 'node-rdpjs',
 // 	streams: logStreams
 // });
+var logger = Logger()
 
 
 function log(level, message) {

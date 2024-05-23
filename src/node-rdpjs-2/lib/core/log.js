@@ -17,7 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var Logger = require('bunyan');
+// var Logger = require('bunyan');
+var logger = require('pino');
 
 var Levels = {
 	'DEBUG': 1,
@@ -47,10 +48,10 @@ logStreams.push(
 	}
 );
 
-var logger = Logger.createLogger({
-	name: 'node-rdpjs',
-	streams: logStreams
-});
+// var logger = Logger.createLogger({
+// 	name: 'node-rdpjs',
+// 	streams: logStreams
+// });
 
 
 function log(level, message) {

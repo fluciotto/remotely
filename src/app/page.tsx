@@ -4,7 +4,8 @@ import { Button, Stack, TextField } from "@mui/material";
 import { useState } from "react";
 
 export default function () {
-  const [host, setHost] = useState("192.168.122.227");
+  // const [host, setHost] = useState("192.168.122.227");
+  const [host, setHost] = useState("192.168.122.120");
   const [port, setPort] = useState(3389);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

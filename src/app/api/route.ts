@@ -17,12 +17,14 @@ export async function GET(req: NextRequest) {
     domain: domain,
     userName: username,
     password: password,
-    enablePerf: true,
-    autoLogin: true,
-    decompress: false,
-    screen: { width: 800, height: 600 },
-    locale: "en",
-    logLevel: "DEBUG",
+    // certIgnore: true,
+
+    // enablePerf: true,
+    // autoLogin: true,
+    // decompress: false,
+    // screen: { width: 800, height: 600 },
+    // locale: "en",
+    // logLevel: "DEBUG",
   })
     .on("connect", function () {
       console.log("CONNECTED");
@@ -35,7 +37,10 @@ export async function GET(req: NextRequest) {
     })
     .on("error", function (err: any) {
       console.log("error", err);
-    });
+    })
+    .on("ERROR", function (err: any) {
+    console.log("ERRRROOOOOOOR")
+  } );
   // console.log(client);
   client.connect();
   return new Response(undefined, { status: 200 });

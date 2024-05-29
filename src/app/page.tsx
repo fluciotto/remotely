@@ -5,9 +5,14 @@ import { useRef, useState } from "react";
 
 async function* streamingFetch(input: RequestInfo | URL, init?: RequestInit) {
   const response = await fetch(input, init);
+  if (!response.ok) {
+    throw response;
+    // return response;
+  }
   const reader = response.body?.getReader();
   if (!reader) {
-    return;
+    throw response;
+    // return response;
   }
   const decoder = new TextDecoder("utf-8");
 
@@ -37,8 +42,11 @@ export default function () {
   const [width, setWidth] = useState(256);
   const [height, setHeight] = useState(256);
   const [bitsPerPixel, setBitsPerPixel] = useState(32);
+  const [error, setError] = useState<Response>();
 
   const connect = async () => {
+    setError(undefined);
+    let error: Response | undefined = undefined;
     const url = new URL("/api/", document.location.origin);
     url.searchParams.append("host", host);
     url.searchParams.append("port", port.toString());
@@ -49,40 +57,49 @@ export default function () {
     url.searchParams.append("height", height.toString());
     url.searchParams.append("bitsPerPixel", bitsPerPixel.toString());
     // await fetch(url);
-    while (true) {
-      const it = streamingFetch(url);
-      let toparse = "";
-      for await (let chunk of it) {
-        try {
-          console.log("Chunk size", chunk.length);
-          toparse += chunk;
-          console.log("To parse size", toparse.length);
-          const parsed = JSON.parse(toparse);
-          toparse = "";
-          console.log("Parsed size", parsed.buffer.data.length);
-          // console.log("Parsed", parsed.buffer.data);
-          // BGRA -> RGBA
-          const arr = new Uint8ClampedArray(4 * parsed.w * parsed.h);
-          for (let i = 0; i < parsed.buffer.data.length; i += 4) {
-            arr[i + 0] = parsed.buffer.data[i + 2];
-            arr[i + 1] = parsed.buffer.data[i + 1];
-            arr[i + 2] = parsed.buffer.data[i];
-            arr[i + 3] = parsed.buffer.data[i + 3];
+    while (!error) {
+      try {
+        const it = streamingFetch(url);
+        console.log("it", it);
+        let toparse = "";
+        for await (let chunk of it) {
+          try {
+            console.log("Chunk size", chunk.length);
+            toparse += chunk;
+            console.log("To parse size", toparse.length);
+            const parsed = JSON.parse(toparse);
+            toparse = "";
+            console.log("Parsed size", parsed.buffer.data.length);
+            // console.log("Parsed", parsed.buffer.data);
+            // BGRA -> RGBA
+            const arr = new Uint8ClampedArray(4 * parsed.w * parsed.h);
+            for (let i = 0; i < parsed.buffer.data.length; i += 4) {
+              arr[i + 0] = parsed.buffer.data[i + 2];
+              arr[i + 1] = parsed.buffer.data[i + 1];
+              arr[i + 2] = parsed.buffer.data[i + 0];
+              arr[i + 3] = parsed.buffer.data[i + 3];
+            }
+            // console.log("arr", arr);
+            const imageData = new ImageData(arr, parsed.w, parsed.h);
+            // console.log("imageData", imageData);
+            canvasRef.current
+              ?.getContext("2d")
+              ?.putImageData(imageData, parsed.x, parsed.y);
+          } catch (e) {
+            // console.log(e);
+            const lol =
+              toparse.substring(0, 10) +
+              " ... " +
+              toparse.substring(toparse.length - 10, toparse.length);
+            // console.log(lol);
+            // console.log(chunk)
           }
-          // console.log("arr", arr);
-          const imageData = new ImageData(arr, parsed.w, parsed.h);
-          // console.log("imageData", imageData);
-          canvasRef.current
-            ?.getContext("2d")
-            ?.putImageData(imageData, parsed.x, parsed.y);
-        } catch (e) {
-          // console.log(e);
-          const lol =
-            toparse.substring(0, 10) +
-            " ... " +
-            toparse.substring(toparse.length - 10, toparse.length);
-          // console.log(lol);
-          // console.log(chunk)
+        }
+      } catch (e) {
+        console.log("ERROR", e);
+        if (e instanceof Response) {
+          error = e;
+          setError(e);
         }
       }
     }
@@ -126,6 +143,7 @@ export default function () {
         onChange={(event) => setDomain(event.target.value)}
       />
       <Button onClick={() => connect()}>Connect</Button>
+      {error ? <span>{error.status}</span> : null}
 
       <canvas ref={canvasRef} width={width} height={height} />
     </Stack>

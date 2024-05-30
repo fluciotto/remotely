@@ -1,0 +1,91 @@
+import { NextRequest } from "next/server";
+import { Session } from "freerdp3";
+import { PassThrough } from "stream";
+
+let session: Session | undefined = undefined;
+
+export async function GET(req: NextRequest) {
+  const searchParams = req.nextUrl.searchParams;
+  const [
+    hostParam,
+    portParam,
+    usernameParam,
+    passwordParam,
+    domainParam,
+    widthParams,
+    heightParam,
+    bitsPerPixelParam,
+  ] = [
+    searchParams.get("host"),
+    searchParams.get("port"),
+    searchParams.get("username"),
+    searchParams.get("password"),
+    searchParams.get("domain"),
+    searchParams.get("width"),
+    searchParams.get("height"),
+    searchParams.get("bitsPerPixel"),
+  ];
+
+  const [host, port, username, password, domain, width, height, bitsPerPixel] =
+    [
+      hostParam,
+      parseInt(portParam || "3389"),
+      usernameParam,
+      passwordParam,
+      domainParam,
+      parseInt(widthParams || "256"),
+      parseInt(heightParam || "256"),
+      parseInt(bitsPerPixelParam || "8"),
+    ];
+
+  console.log(
+    "host, port, username, password, domain, width, height, bitsPerPixel",
+    host,
+    port,
+    username,
+    password,
+    domain,
+    width,
+    height,
+    bitsPerPixel
+  );
+
+  if (!host) {
+    return new Response(undefined, { status: 400 });
+  }
+  if (!username) {
+    return new Response(undefined, { status: 400 });
+  }
+  if (!password) {
+    return new Response(undefined, { status: 400 });
+  }
+
+  session = new Session({
+    host,
+    port,
+    username,
+    password,
+    domain: domain || undefined,
+    // certIgnore: true,
+    width,
+    height,
+    bitsPerPixel,
+    // bitsPerPixel: 8,
+
+    // enablePerf: true,
+    // autoLogin: true,
+    // decompress: false,
+    // screen: { width: 800, height: 600 },
+    // locale: "en",
+    // logLevel: "DEBUG",
+  })
+    .on("connect", function () {
+      console.log("CONNECTED");
+    })
+    .on("error", function (err: any) {
+      console.log("error", err);
+    });
+  session.connect();
+
+  return new Response(undefined, { status: 200 });
+}

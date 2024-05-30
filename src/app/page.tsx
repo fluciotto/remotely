@@ -1,7 +1,8 @@
 "use client";
 
 import { Button, Stack, TextField } from "@mui/material";
-import { useRef, useState } from "react";
+import { MouseEvent, useRef, useState } from "react";
+import { EventEmitter } from "stream";
 
 async function* streamingFetch(input: RequestInfo | URL, init?: RequestInit) {
   const response = await fetch(input, init);
@@ -20,10 +21,10 @@ async function* streamingFetch(input: RequestInfo | URL, init?: RequestInit) {
     const { done, value } = await reader.read();
     if (done) break;
     try {
-      const v = decoder.decode(value);
-      // console.log("value", v);
-      yield decoder.decode(value);
-      // console.log("value", value);
+      console.log("value", value);
+      const decodedValue = decoder.decode(value);
+      // console.log("decodedValue", decodedValue);
+      yield decodedValue;
       // yield value;
     } catch (e: any) {
       console.warn(e.message);
@@ -36,12 +37,13 @@ export default function () {
   // const [host, setHost] = useState("192.168.122.227");
   const [host, setHost] = useState("192.168.122.120");
   const [port, setPort] = useState(3389);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("exovii");
+  const [password, setPassword] = useState("exovii");
   const [domain, setDomain] = useState("");
   const [width, setWidth] = useState(256);
-  const [height, setHeight] = useState(256);
+  const [height, setHeight] = useState(128);
   const [bitsPerPixel, setBitsPerPixel] = useState(32);
+  const [connected, setConnected] = useState(false);
   const [error, setError] = useState<Response>();
 
   const connect = async () => {
@@ -105,6 +107,53 @@ export default function () {
     }
   };
 
+  const onMouseMove = async (event: MouseEvent<HTMLCanvasElement>) => {
+    if (!canvasRef.current) return;
+    // console.log("event", event);
+    const rect = canvasRef.current.getBoundingClientRect();
+    const pos = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+    // console.log("pos", pos);
+    const url = new URL("/api/mouse", document.location.origin);
+    url.searchParams.append("x", pos.x.toString());
+    url.searchParams.append("y", pos.y.toString());
+    const response = await fetch(url, { method: "POST" });
+  };
+
+  const onMouseDown = async (event: MouseEvent<HTMLCanvasElement>) => {
+    if (!canvasRef.current) return;
+    // console.log("event", event);
+    const rect = canvasRef.current.getBoundingClientRect();
+    const pos = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+    // console.log("pos", pos);
+    const url = new URL("/api/mouse", document.location.origin);
+    url.searchParams.append("x", pos.x.toString());
+    url.searchParams.append("y", pos.y.toString());
+    url.searchParams.append("pressLeft", "true");
+    const response = await fetch(url, { method: "POST" });
+  };
+
+  const onMouseUp = async (event: MouseEvent<HTMLCanvasElement>) => {
+    if (!canvasRef.current) return;
+    // console.log("event", event);
+    const rect = canvasRef.current.getBoundingClientRect();
+    const pos = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+    // console.log("pos", pos);
+    const url = new URL("/api/mouse", document.location.origin);
+    url.searchParams.append("x", pos.x.toString());
+    url.searchParams.append("y", pos.y.toString());
+    url.searchParams.append("pressLeft", "false");
+    const response = await fetch(url, { method: "POST" });
+  };
+
   return (
     <Stack gap={2}>
       <Stack direction="row" gap={2}>
@@ -145,7 +194,20 @@ export default function () {
       <Button onClick={() => connect()}>Connect</Button>
       {error ? <span>{error.status}</span> : null}
 
-      <canvas ref={canvasRef} width={width} height={height} />
+      <canvas
+        ref={canvasRef}
+        width={width}
+        height={height}
+        onMouseMove={(event: MouseEvent<HTMLCanvasElement>) =>
+          onMouseMove(event)
+        }
+        onMouseDown={(event: MouseEvent<HTMLCanvasElement>) =>
+          onMouseDown(event)
+        }
+        onMouseUp={(event: MouseEvent<HTMLCanvasElement>) =>
+          onMouseUp(event)
+        }
+      />
     </Stack>
   );
 }

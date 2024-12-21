@@ -56,36 +56,16 @@ class StreamingResponse extends Response {
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
-  const [
-    hostParam,
-    portParam,
-    usernameParam,
-    passwordParam,
-    domainParam,
-    widthParams,
-    heightParam,
-    bitsPerPixelParam,
-  ] = [
-    searchParams.get("host"),
-    searchParams.get("port"),
-    searchParams.get("username"),
-    searchParams.get("password"),
-    searchParams.get("domain"),
-    searchParams.get("width"),
-    searchParams.get("height"),
-    searchParams.get("bitsPerPixel"),
-  ];
-
   const [host, port, username, password, domain, width, height, bitsPerPixel] =
     [
-      hostParam,
-      parseInt(portParam || "3389"),
-      usernameParam,
-      passwordParam,
-      domainParam,
-      parseInt(widthParams || "256"),
-      parseInt(heightParam || "256"),
-      parseInt(bitsPerPixelParam || "8"),
+      searchParams.get("host"),
+      parseInt(searchParams.get("port") || "") || 3389,
+      searchParams.get("username"),
+      searchParams.get("password"),
+      searchParams.get("domain"),
+      parseInt(searchParams.get("width") || "") || 640,
+      parseInt(searchParams.get("height") || "") || 480,
+      parseInt(searchParams.get("bitsPerPixel") || "") || 8,
     ];
 
   console.log(
@@ -118,7 +98,7 @@ export async function GET(req: NextRequest) {
     username,
     password,
     domain: domain || undefined,
-    // certIgnore: true,
+    certIgnore: true,
     width,
     height,
     bitsPerPixel,
@@ -138,10 +118,48 @@ export async function GET(req: NextRequest) {
       console.log("CLOSED", reason);
       stream.end();
     })
-    .on("bitmap", function (bitmap: any) {
-      console.log("BITMAP", { ...bitmap, buffer: bitmap.buffer.length });
-      stream.write(Buffer.from(JSON.stringify(bitmap)));
-    })
+    .on(
+      "bitmap",
+      function (bitmap: {
+        x: number;
+        y: number;
+        w: number;
+        h: number;
+        bitsPerPixel: number;
+        buffer: Buffer;
+      }) {
+        if (bitmap.x || bitmap.y || bitmap.w !== width || bitmap.h !== height) {
+          return;
+        }
+        console.log("BITMAP", {
+          ...bitmap,
+          buffer: {
+            byteLength: bitmap.buffer.byteLength,
+            length: bitmap.buffer.length,
+          },
+        });
+        // stream.write(Buffer.from(JSON.stringify(bitmap)));
+        const array16 = Uint16Array.from([
+          bitmap.x,
+          bitmap.y,
+          bitmap.w,
+          bitmap.h,
+        ]);
+        const array = Uint8Array.from([
+          ...Array.from(
+            new Uint8Array(
+              array16.buffer,
+              array16.byteOffset,
+              array16.byteLength
+            )
+          ),
+          bitmap.bitsPerPixel,
+          ...Array.from(bitmap.buffer),
+        ]);
+        // console.log("array", array);
+        stream.write(array);
+      }
+    )
     .on("error", function (err: any) {
       console.log("error", err);
     });
